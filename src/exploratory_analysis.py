@@ -24,7 +24,11 @@ except OSError:
     plt.style.use("seaborn-whitegrid")
 
 PALETTE = "Set2"
-TARGET_LABELS = {0: "Victoria A", 1: "Victoria B", 2: "Empate"}
+# El dataset usa el esquema blancas/negras: target 0=gana blancas,
+# 1=gana negras, 2=empate.
+TARGET_LABELS = {0: "Gana Blancas", 1: "Gana Negras", 2: "Empate"}
+# Codificacion del ritmo de juego en time_class_encoded (4 clases).
+TIME_CLASS_LABELS = {0: "Bullet", 1: "Blitz", 2: "Rapid", 3: "Daily"}
 
 
 class ExploratoryAnalyzer:
@@ -64,7 +68,14 @@ class ExploratoryAnalyzer:
         counts = df["target"].value_counts().sort_index()
         counts.index = [TARGET_LABELS.get(i, i) for i in counts.index]
 
-        sns.barplot(x=counts.index, y=counts.values, palette=PALETTE, ax=axes[0])
+        sns.barplot(
+            x=list(counts.index),
+            y=counts.values,
+            hue=list(counts.index),
+            palette=PALETTE,
+            legend=False,
+            ax=axes[0],
+        )
         axes[0].set_title("Frecuencia absoluta")
         axes[0].set_xlabel("Resultado")
         axes[0].set_ylabel("Partidas")
@@ -99,8 +110,8 @@ class ExploratoryAnalyzer:
         fig.suptitle("Distribución de Ratings", fontsize=14, fontweight="bold")
 
         for ax, col, label in [
-            (axes[0], "rating_a", "Rating Jugador A"),
-            (axes[1], "rating_b", "Rating Jugador B"),
+            (axes[0], "white_rating", "Rating Blancas"),
+            (axes[1], "black_rating", "Rating Negras"),
         ]:
             if col in df.columns:
                 sns.histplot(df[col].dropna(), kde=True, ax=ax, color="steelblue", bins=20)
@@ -124,10 +135,18 @@ class ExploratoryAnalyzer:
         if "rating_diff" in df.columns:
             plot_df = df.copy()
             plot_df["resultado"] = plot_df["target"].map(TARGET_LABELS)
-            sns.boxplot(data=plot_df, x="resultado", y="rating_diff", palette=PALETTE, ax=ax)
+            sns.boxplot(
+                data=plot_df,
+                x="resultado",
+                y="rating_diff",
+                hue="resultado",
+                palette=PALETTE,
+                legend=False,
+                ax=ax,
+            )
             ax.axhline(0, color="red", linestyle="--", alpha=0.7, label="Sin diferencia")
             ax.set_xlabel("Resultado")
-            ax.set_ylabel("Diferencia de Rating (A − B)")
+            ax.set_ylabel("Diferencia de Rating (Blancas − Negras)")
             ax.set_title("¿Influye la diferencia de rating en el resultado?")
             ax.legend()
 
@@ -137,23 +156,28 @@ class ExploratoryAnalyzer:
     def plot_white_advantage(
         self, df: pd.DataFrame, save_path: Optional[str] = None
     ) -> plt.Figure:
-        """Win rate by color."""
+        """Resultado global segun color: % victorias blancas / negras / empate.
+
+        El dataset no guarda el color por jugador, pero el target ya codifica
+        el resultado por color (0=ganan blancas, 1=ganan negras, 2=empate),
+        asi que la ventaja de las blancas se lee directamente de ahi.
+        """
         fig, ax = plt.subplots(figsize=(8, 5))
         fig.suptitle("Ventaja de las Blancas", fontsize=14, fontweight="bold")
 
-        if "color_a_is_white" in df.columns:
-            white_games = df[df["color_a_is_white"] == 1]
-            black_games = df[df["color_a_is_white"] == 0]
+        if "target" in df.columns:
+            pct = df["target"].value_counts(normalize=True) * 100
+            categories = ["Ganan Blancas", "Ganan Negras", "Empate"]
+            values = [pct.get(0, 0.0), pct.get(1, 0.0), pct.get(2, 0.0)]
 
-            categories = ["Blancas (A)", "Negras (A)"]
-            win_rates = [
-                (white_games["target"] == 0).mean() * 100,
-                (black_games["target"] == 0).mean() * 100,
-            ]
-
-            bars = ax.bar(categories, win_rates, color=["#FAFAFA", "#444444"],
-                         edgecolor="black", width=0.5)
-            for bar, val in zip(bars, win_rates):
+            bars = ax.bar(
+                categories,
+                values,
+                color=["#FAFAFA", "#444444", "#9E9E9E"],
+                edgecolor="black",
+                width=0.6,
+            )
+            for bar, val in zip(bars, values):
                 ax.text(
                     bar.get_x() + bar.get_width() / 2,
                     bar.get_height() + 0.5,
@@ -161,9 +185,9 @@ class ExploratoryAnalyzer:
                     ha="center",
                     va="bottom",
                 )
-            ax.set_ylabel("Tasa de victorias de A (%)")
-            ax.set_ylim(0, 100)
-            ax.set_title("Victoria de A según color asignado")
+            ax.set_ylabel("Porcentaje de partidas (%)")
+            ax.set_ylim(0, max(values) * 1.2 if values else 100)
+            ax.set_title("Resultado global según color")
 
         plt.tight_layout()
         return self._save_fig(fig, save_path)
@@ -175,11 +199,11 @@ class ExploratoryAnalyzer:
         fig, ax = plt.subplots(figsize=(10, 6))
         fig.suptitle("Comparación por Ritmo de Juego", fontsize=14, fontweight="bold")
 
-        time_map = {0: "Bullet", 1: "Blitz", 2: "Rapid"}
-
         if "time_class_encoded" in df.columns:
             plot_df = df.copy()
-            plot_df["time_class_label"] = plot_df["time_class_encoded"].map(time_map)
+            plot_df["time_class_label"] = plot_df["time_class_encoded"].map(
+                TIME_CLASS_LABELS
+            )
             plot_df["resultado"] = plot_df["target"].map(TARGET_LABELS)
 
             ct = pd.crosstab(
@@ -303,31 +327,29 @@ class ExploratoryAnalyzer:
             win_b = counts.get(1, 0)
             draw = counts.get(2, 0)
             conclusions.append(
-                f"Distribución de resultados: Victoria A {win_a:.1f}%, "
-                f"Victoria B {win_b:.1f}%, Empate {draw:.1f}%. "
+                f"Distribución de resultados: Gana Blancas {win_a:.1f}%, "
+                f"Gana Negras {win_b:.1f}%, Empate {draw:.1f}%. "
                 f"{'El dataset está desbalanceado.' if max(win_a, win_b, draw) > 50 else 'Distribución relativamente balanceada.'}"
             )
 
         if "rating_diff" in df.columns and "target" in df.columns:
-            mean_diff_wina = df[df["target"] == 0]["rating_diff"].mean()
-            mean_diff_winb = df[df["target"] == 1]["rating_diff"].mean()
+            mean_diff_white = df[df["target"] == 0]["rating_diff"].mean()
+            mean_diff_black = df[df["target"] == 1]["rating_diff"].mean()
             conclusions.append(
-                f"Cuando A gana, la diferencia de rating media es {mean_diff_wina:.0f}. "
-                f"Cuando B gana, es {mean_diff_winb:.0f}. "
+                f"Cuando ganan las blancas, la diferencia de rating media "
+                f"(blancas − negras) es {mean_diff_white:.0f}. "
+                f"Cuando ganan las negras, es {mean_diff_black:.0f}. "
                 "Esto confirma que el rating es un predictor relevante."
             )
 
-        if "color_a_is_white" in df.columns and "target" in df.columns:
-            white_wr = (
-                df[df["color_a_is_white"] == 1]["target"] == 0
-            ).mean() * 100
-            black_wr = (
-                df[df["color_a_is_white"] == 0]["target"] == 0
-            ).mean() * 100
+        if "target" in df.columns:
+            pct = df["target"].value_counts(normalize=True) * 100
+            white_wr = pct.get(0, 0.0)
+            black_wr = pct.get(1, 0.0)
             conclusions.append(
-                f"Tasa de victoria con blancas: {white_wr:.1f}% "
-                f"vs con negras: {black_wr:.1f}%. "
-                f"{'La ventaja de blancas es visible en este dataset.' if white_wr > black_wr + 2 else 'La ventaja de blancas no es pronunciada en este dataset.'}"
+                f"Las blancas ganan el {white_wr:.1f}% de las partidas frente "
+                f"al {black_wr:.1f}% de las negras. "
+                f"{'La ventaja de las blancas es visible en este dataset.' if white_wr > black_wr + 2 else 'La ventaja de las blancas no es pronunciada en este dataset.'}"
             )
 
         return conclusions
