@@ -1,0 +1,104 @@
+{
+  "algorithm": "XGBoost-Multiclass",
+  "training_date": "2026-11-02T22:07:08.672327",
+  "train_samples": 52622,
+  "test_samples": 13156,
+  "metrics": {
+    "accuracy": 0.687519002736394,
+    "precision_macro": 0.6248537764970249,
+    "recall_macro": 0.4755136926806975,
+    "f1_macro": 0.46777315273078374,
+    "log_loss": 0.6855399012565613,
+    "recall_draw": 0.002173913043478261,
+    "classification_report": "              precision    recall  f1-score   support\n\n   win_white       0.70      0.72      0.71      6557\n   win_black       0.68      0.71      0.69      6139\n        draw       0.50      0.00      0.00       460\n\n    accuracy                           0.69     13156\n   macro avg       0.62      0.48      0.47     13156\nweighted avg       0.68      0.69      0.68     13156\n"
+  },
+  "confusion_matrix": [
+    [
+      4703,
+      1854,
+      0
+    ],
+    [
+      1797,
+      4341,
+      1
+    ],
+    [
+      232,
+      227,
+      1
+    ]
+  ],
+  "confusion_matrix_labels": [
+    "win_white",
+    "win_black",
+    "draw"
+  ],
+  "draw_metrics": {
+    "tp": 1,
+    "fn": 459,
+    "fp": 1,
+    "tn": 12695,
+    "precision": 0.5,
+    "recall": 0.002173913043478261,
+    "f1": 0.004329004329004329
+  },
+  "feature_names": [
+    "white_rating",
+    "black_rating",
+    "rating_diff",
+    "abs_rating_diff",
+    "time_class_encoded",
+    "rated"
+  ],
+  "all_model_results": {
+    "XGBoost-Multiclass": {
+      "accuracy": 0.687519002736394,
+      "precision_macro": 0.6248537764970249,
+      "recall_macro": 0.4755136926806975,
+      "f1_macro": 0.46777315273078374,
+      "log_loss": 0.6855399012565613,
+      "recall_draw": 0.002173913043478261,
+      "classification_report": "              precision    recall  f1-score   support\n\n   win_white       0.70      0.72      0.71      6557\n   win_black       0.68      0.71      0.69      6139\n        draw       0.50      0.00      0.00       460\n\n    accuracy                           0.69     13156\n   macro avg       0.62      0.48      0.47     13156\nweighted avg       0.68      0.69      0.68     13156\n"
+    },
+    "XGBoost-TwoStage": {
+      "accuracy": 0.671632715110976,
+      "precision_macro": 0.48015911833076536,
+      "recall_macro": 0.4799155970023911,
+      "f1_macro": 0.47998729417100505,
+      "log_loss": 1.0377448797225952,
+      "recall_draw": 0.05217391304347826,
+      "classification_report": "              precision    recall  f1-score   support\n\n   win_white       0.70      0.70      0.70      6557\n   win_black       0.68      0.68      0.68      6139\n        draw       0.06      0.05      0.05       460\n\n    accuracy                           0.67     13156\n   macro avg       0.48      0.48      0.48     13156\nweighted avg       0.67      0.67      0.67     13156\n",
+      "thresholds": {
+        "t1": 0.7,
+        "t2": 0.5
+      },
+      "chosen_t1": 0.7,
+      "t1_sweep": {
+        "0.3": 0.32223268294463564,
+        "0.4": 0.3861080613799692,
+        "0.5": 0.4352557370911931,
+        "0.6": 0.4613626988656976,
+        "0.7": 0.4732812078021443
+      }
+    },
+    "RandomForest": {
+      "accuracy": 0.631498935846762,
+      "precision_macro": 0.45519062560285595,
+      "recall_macro": 0.4551462067091101,
+      "f1_macro": 0.4550803316843641,
+      "log_loss": 1.2346879439924932,
+      "recall_draw": 0.06086956521739131,
+      "classification_report": "              precision    recall  f1-score   support\n\n   win_white       0.67      0.65      0.66      6557\n   win_black       0.64      0.66      0.65      6139\n        draw       0.06      0.06      0.06       460\n\n    accuracy                           0.63     13156\n   macro avg       0.46      0.46      0.46     13156\nweighted avg       0.63      0.63      0.63     13156\n"
+    },
+    "Baseline-RatingOnly": {
+      "accuracy": 0.536409242930982,
+      "precision_macro": 0.5041813284239213,
+      "recall_macro": 0.4757820955456655,
+      "f1_macro": 0.441355521871706,
+      "log_loss": 1.0145666967435634,
+      "recall_draw": 0.3391304347826087,
+      "classification_report": "              precision    recall  f1-score   support\n\n   win_white       0.75      0.53      0.62      6557\n   win_black       0.72      0.56      0.63      6139\n        draw       0.04      0.34      0.07       460\n\n    accuracy                           0.54     13156\n   macro avg       0.50      0.48      0.44     13156\nweighted avg       0.71      0.54      0.61     13156\n"
+    }
+  }
+}

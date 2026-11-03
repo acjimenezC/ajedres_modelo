@@ -1,0 +1,76 @@
+# ---------------------------------------------------------------------------
+# Python
+# ---------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# ---------------------------------------------------------------------------
+# Entornos virtuales
+# ---------------------------------------------------------------------------
+.venv/
+venv/
+env/
+ENV/
+
+# ---------------------------------------------------------------------------
+# Caches de herramientas
+# ---------------------------------------------------------------------------
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# ---------------------------------------------------------------------------
+# Jupyter / notebooks
+# ---------------------------------------------------------------------------
+# Los .ipynb SÍ se versionan (son entregables).
+
+# ---------------------------------------------------------------------------
+# IDE / editores
+# ---------------------------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# ---------------------------------------------------------------------------
+# Artefactos de agentes de IA (planes, reviews, tareas internas)
+# No forman parte del proyecto ni de la entrega.
+# ---------------------------------------------------------------------------
+.agents/
+
+# ---------------------------------------------------------------------------
+# Datos
+# ---------------------------------------------------------------------------
+# El dataset crudo se descarga de Kaggle con `python -m src.data_loader`,
+# por eso se ignora (es pesado y regenerable).
+data/raw/
+
+# El dataset procesado se regenera con el mismo comando. Descoméntalo si
+# NO quieres subirlo al repositorio:
+# data/processed/dataset.csv
+
+# ---------------------------------------------------------------------------
+# Modelos y artefactos entrenados
+# ---------------------------------------------------------------------------
+# Se MANTIENEN en el repo como evidencia de la entrega (best_model.pkl,
+# model_metadata.json) para que el evaluador no tenga que reentrenar.
+# Si prefieres NO subir el modelo binario, descomenta la línea siguiente:
+# models/best_model.pkl
+
+# ---------------------------------------------------------------------------
+# Credenciales / secretos (nunca subir)
+# ---------------------------------------------------------------------------
+.env
+*.env
+secrets.json
+credentials.json
+*.key
